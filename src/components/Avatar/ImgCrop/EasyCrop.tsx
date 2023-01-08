@@ -119,6 +119,12 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
         <Cropper
           {...cropperProps}
           ref={cropperRef}
+          style={{
+            containerStyle: {
+              width: "300px",
+              height: "300px",
+            },
+          }}
           image={image}
           crop={crop}
           cropSize={cropSize}
