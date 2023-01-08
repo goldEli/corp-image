@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ImgCrop from "./ImgCrop";
 import { Upload } from "antd";
 
@@ -48,11 +48,11 @@ const Avatar = () => {
     const reads = new FileReader();
     const f = fileRef.current?.files?.[0];
     console.log({ f });
-    reads.readAsDataURL(f);
+    f && reads.readAsDataURL(f);
     reads.onload = function (e) {
       fileRef.current.value = "";
       open();
-      imgRef.current.src = this.result;
+      //   imgRef.current.src = this.result;
       this.result && setFile(this.result);
     };
   };
@@ -61,7 +61,20 @@ const Avatar = () => {
     <>
       <input ref={fileRef} onChange={onChange} type="file" accept="image/*" />
       <img src="" ref={imgRef} width={"200"} />
-      <ImgCrop file={file} open={visible} onClose={close} shape="round" />
+      <ImgCrop
+        file={file}
+        open={visible}
+        onModalCancel={close}
+        onModalOk={(file) => {
+          console.log(file);
+          const reads = new FileReader();
+          reads.readAsDataURL(file);
+          reads.onload = function (e) {
+            imgRef.current.src = this.result;
+          };
+        }}
+        shape="round"
+      />
     </>
   );
 };

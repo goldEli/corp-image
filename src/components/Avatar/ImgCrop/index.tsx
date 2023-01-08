@@ -54,34 +54,33 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
     modalMaskTransitionName,
     modalTransitionName,
     modalClassName,
-    // onModalOk,
-    // onModalCancel,
+    onModalOk,
+    onModalCancel,
 
-    // beforeCrop,
-    // onUploadFail,
+    beforeCrop,
+    onUploadFail,
     cropperProps,
     // children,
   } = props;
 
-  // const cb = useRef<
-  //   Pick<
-  //     ImgCropProps,
-  //     "onModalOk" | "onModalCancel" | "beforeCrop" | "onUploadFail"
-  //   >
-  // >({});
-  // cb.current.onModalOk = onModalOk;
-  // cb.current.onModalCancel = onModalCancel;
-  // cb.current.beforeCrop = beforeCrop;
-  // cb.current.onUploadFail = onUploadFail;
+  const cb = useRef<
+    Pick<
+      ImgCropProps,
+      "onModalOk" | "onModalCancel" | "beforeCrop" | "onUploadFail"
+    >
+  >({});
+  cb.current.onModalOk = onModalOk;
+  cb.current.onModalCancel = onModalCancel;
+  cb.current.beforeCrop = beforeCrop;
+  cb.current.onUploadFail = onUploadFail;
 
   /**
    * Upload
    */
   // const [image, setImage] = useState('https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png');
-  const [image, setImage] = useState("");
   const fileRef = useRef<UploadFile>({} as UploadFile);
   const beforeUploadRef = useRef<UploadProps["beforeUpload"]>();
-  const resolveRef = useRef<OnModalOk>(() => {});
+  const resolveRef = useRef(onModalOk);
   const rejectRef = useRef<(err: Error) => void>(() => {});
 
   /**
@@ -119,11 +118,10 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
     // setImage("");
     easyCropRef.current.setZoomVal(INIT_ZOOM);
     // easyCropRef.current.setRotateVal(INIT_ROTATE);
-    props.onClose();
+    cb.current.onModalCancel?.();
   };
 
   const onCancel = useCallback(() => {
-    // cb.current.onModalCancel?.();
     onClose();
   }, []);
 
@@ -167,6 +165,9 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
         cropHeight
       );
 
+      // const imgBase64 = canvas.toDataURL("image/png");
+      // console.log({ imgBase64 });
+
       // get the new image
       const { type, name, uid } = fileRef.current;
       canvas.toBlob(
@@ -177,14 +178,14 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
           ) as File;
 
           if (!beforeUploadRef.current) {
-            return resolveRef.current(newFile);
+            return resolveRef?.current?.(newFile);
           }
 
           const rcFile = newFile as unknown as RcFile;
           const result = await beforeUploadRef.current(rcFile, [rcFile]);
 
           if (result === true) {
-            return resolveRef.current(newFile);
+            return resolveRef?.current?.(newFile);
           }
 
           if (result === false) {
@@ -204,7 +205,8 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
           }
 
           if (typeof result === "object" && result !== null) {
-            return resolveRef.current(result);
+            console.log({ result });
+            return resolveRef?.current?.(result);
           }
         },
         type,
@@ -213,7 +215,7 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
     },
     [fillColor, quality, rotate]
   );
-
+  console.log({ file: props.file });
   return (
     <AntModal
       open={props.open}
