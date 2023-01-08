@@ -10,7 +10,7 @@ import type { Area, Point } from "react-easy-crop/types";
 import type { RcFile } from "antd/es/upload/interface";
 
 export type ImgCropProps = {
-  file: string | void | Blob | File;
+  file: string;
   open: boolean;
   aspect?: number;
   shape?: "rect" | "round";

@@ -62,7 +62,7 @@ const Avatar = () => {
       <input ref={fileRef} onChange={onChange} type="file" accept="image/*" />
       <img src="" ref={imgRef} width={"200"} />
       <ImgCrop
-        file={file}
+        file={file as string}
         open={visible}
         onModalCancel={close}
         onModalOk={(file) => {
