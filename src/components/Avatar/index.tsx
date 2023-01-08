@@ -47,10 +47,11 @@ const Avatar = () => {
     }
     const reads = new FileReader();
     const f = fileRef.current?.files?.[0];
-    console.log({ f });
     f && reads.readAsDataURL(f);
     reads.onload = function (e) {
-      fileRef.current.value = "";
+      if (fileRef.current !== null && fileRef.current !== void 0) {
+        fileRef.current.value = "";
+      }
       open();
       //   imgRef.current.src = this.result;
       this.result && setFile(this.result);
@@ -66,11 +67,12 @@ const Avatar = () => {
         open={visible}
         onModalCancel={close}
         onModalOk={(file) => {
-          console.log(file);
           const reads = new FileReader();
-          reads.readAsDataURL(file);
+          reads.readAsDataURL(file as Blob);
           reads.onload = function (e) {
-            imgRef.current.src = this.result;
+            if (imgRef.current !== null && imgRef.current !== void 0) {
+              imgRef.current.src = this.result as string;
+            }
           };
         }}
         shape="round"
