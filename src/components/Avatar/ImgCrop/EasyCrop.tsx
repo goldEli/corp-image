@@ -24,6 +24,8 @@ import styled from "@emotion/styled";
 const ImgBox = styled.div`
   width: 230px;
   height: 230px;
+  transform: scale(${100 / 200});
+  transform-origin: 0 0 0;
   overflow: hidden;
   border-radius: 50%;
   display: flex;
@@ -31,8 +33,8 @@ const ImgBox = styled.div`
   align-items: center;
   img {
     height: 230px;
-    
-    transform: ${(props: { x: number; y: number, zoom: number }) => {
+    transform-origin: 50% 50% 0;
+    transform: ${(props: { x: number; y: number; zoom: number }) => {
       return `translate(${props.x}px, ${props.y}px) scale(${props.zoom})`;
     }};
   }
