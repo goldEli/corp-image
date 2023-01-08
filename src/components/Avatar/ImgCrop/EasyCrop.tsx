@@ -39,6 +39,17 @@ const ImgBox = styled.div`
     }};
   }
 `;
+const Box = styled.div`
+  width: 500px;
+  display: flex;
+`;
+const Left = styled.div`
+  width: 400px;
+`;
+
+const Right = styled.div`
+  flex: 1;
+`;
 
 const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
   const {
@@ -87,54 +98,81 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
   }));
   console.log({ crop, image, zoomVal });
   return (
-    <>
-      <Cropper
-        {...cropperProps}
-        ref={cropperRef}
-        image={image}
-        crop={crop}
-        cropSize={cropSize}
-        onCropChange={(location) => {
-          onCropChange(location);
-          props.onChange(location);
-        }}
-        aspect={aspect}
-        cropShape={shape}
-        showGrid={grid}
-        zoomWithScroll={zoom}
-        zoom={zoomVal}
-        rotation={rotateVal}
-        onZoomChange={setZoomVal}
-        onRotationChange={setRotateVal}
-        minZoom={minZoom}
-        maxZoom={maxZoom}
-        onMediaLoaded={onMediaLoaded}
-        onCropComplete={onCropComplete}
-        classes={{
-          containerClassName: `${PREFIX}-container`,
-          mediaClassName: `${PREFIX}-media`,
-        }}
-      />
-      {zoom && (
-        <section className={`${PREFIX}-control ${PREFIX}-control-zoom`}>
+    <Box>
+      <Left>
+        <Cropper
+          {...cropperProps}
+          ref={cropperRef}
+          image={image}
+          crop={crop}
+          cropSize={cropSize}
+          onCropChange={(location) => {
+            onCropChange(location);
+            props.onChange(location);
+          }}
+          aspect={aspect}
+          cropShape={shape}
+          showGrid={grid}
+          zoomWithScroll={zoom}
+          zoom={zoomVal}
+          rotation={rotateVal}
+          onZoomChange={setZoomVal}
+          onRotationChange={setRotateVal}
+          minZoom={minZoom}
+          maxZoom={maxZoom}
+          onMediaLoaded={onMediaLoaded}
+          onCropComplete={onCropComplete}
+          classes={{
+            containerClassName: `${PREFIX}-container`,
+            mediaClassName: `${PREFIX}-media`,
+          }}
+        />
+        {zoom && (
+          <section className={`${PREFIX}-control ${PREFIX}-control-zoom`}>
+            <button
+              onClick={() => setZoomVal(zoomVal - ZOOM_STEP)}
+              disabled={zoomVal - ZOOM_STEP < minZoom}
+            >
+              －
+            </button>
+            <button
+              onClick={() => setZoomVal(zoomVal + ZOOM_STEP)}
+              disabled={zoomVal + ZOOM_STEP > maxZoom}
+            >
+              ＋
+            </button>
+          </section>
+        )}
+        {/* {rotate && (
+        <section className={`${PREFIX}-control ${PREFIX}-control-rotate`}>
           <button
-            onClick={() => setZoomVal(zoomVal - ZOOM_STEP)}
-            disabled={zoomVal - ZOOM_STEP < minZoom}
+            onClick={() => setRotateVal(rotateVal - ROTATE_STEP)}
+            disabled={rotateVal === MIN_ROTATE}
           >
-            －
+            ↺
           </button>
+          <AntSlider
+            min={MIN_ROTATE}
+            max={MAX_ROTATE}
+            step={ROTATE_STEP}
+            value={rotateVal}
+            onChange={setRotateVal}
+          />
           <button
-            onClick={() => setZoomVal(zoomVal + ZOOM_STEP)}
-            disabled={zoomVal + ZOOM_STEP > maxZoom}
+            onClick={() => setRotateVal(rotateVal + ROTATE_STEP)}
+            disabled={rotateVal === MAX_ROTATE}
           >
-            ＋
+            ↻
           </button>
         </section>
-      )}
-      <ImgBox zoom={zoomVal} x={crop.x} y={crop.y}>
-        <img src={image} />
-      </ImgBox>
-    </>
+      )} */}
+      </Left>
+      <Right>
+        <ImgBox zoom={zoomVal} x={crop.x} y={crop.y}>
+          <img src={image} />
+        </ImgBox>
+      </Right>
+    </Box>
   );
 });
 
