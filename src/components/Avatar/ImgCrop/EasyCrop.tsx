@@ -21,10 +21,19 @@ import {
 import type { EasyCropProps, EasyCropRef } from "./types";
 import styled from "@emotion/styled";
 
+interface StyledProps {
+  height: number;
+  x: number;
+  y: number;
+  zoom: number;
+}
+
 const ImgBox = styled.div`
-  width: 230px;
-  height: 230px;
-  transform: scale(${100 / 200});
+  width: ${(props: StyledProps) => `${props.height}px`};
+  height: ${(props: StyledProps) => `${props.height}px`};
+  transform: ${(props: StyledProps) => {
+    return `scale(${100 / props.height})`;
+  }};
   transform-origin: 0 0 0;
   overflow: hidden;
   border-radius: 50%;
@@ -32,9 +41,8 @@ const ImgBox = styled.div`
   justify-content: center;
   align-items: center;
   img {
-    height: 230px;
-    transform-origin: 50% 50% 0;
-    transform: ${(props: { x: number; y: number; zoom: number }) => {
+    height: ${(props: StyledProps) => `${props.height}px`};
+    transform: ${(props: StyledProps) => {
       return `translate(${props.x}px, ${props.y}px) scale(${props.zoom})`;
     }};
   }
@@ -44,12 +52,19 @@ const Box = styled.div`
   display: flex;
 `;
 const Left = styled.div`
-  width: 400px;
+  width: 300px;
 `;
 
 const Right = styled.div`
   flex: 1;
 `;
+
+function getStyleValue(dom: Element | null) {
+  if (!dom) {
+    return 0;
+  }
+  return parseFloat(getComputedStyle(dom)["height"]);
+}
 
 const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
   const {
@@ -97,6 +112,7 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
     cropPixelsRef,
   }));
   console.log({ crop, image, zoomVal });
+  const height = getStyleValue(document.querySelector(".img-crop-media"));
   return (
     <Box>
       <Left>
@@ -168,8 +184,13 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
       )} */}
       </Left>
       <Right>
-        <ImgBox zoom={zoomVal} x={crop.x} y={crop.y}>
-          <img src={image} />
+        <ImgBox height={height} zoom={zoomVal} x={crop.x} y={crop.y}>
+          <img
+            style={{
+              height: height + "px",
+            }}
+            src={image}
+          />
         </ImgBox>
       </Right>
     </Box>
