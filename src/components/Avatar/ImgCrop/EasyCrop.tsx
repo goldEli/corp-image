@@ -19,6 +19,24 @@ import {
   ZOOM_STEP,
 } from "./constants";
 import type { EasyCropProps, EasyCropRef } from "./types";
+import styled from "@emotion/styled";
+
+const ImgBox = styled.div`
+  width: 230px;
+  height: 230px;
+  overflow: hidden;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    height: 230px;
+    
+    transform: ${(props: { x: number; y: number, zoom: number }) => {
+      return `translate(${props.x}px, ${props.y}px) scale(${props.zoom})`;
+    }};
+  }
+`;
 
 const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
   const {
@@ -65,7 +83,7 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
     setRotateVal,
     cropPixelsRef,
   }));
-  // console.log({ crop });
+  console.log({ crop, image, zoomVal });
   return (
     <>
       <Cropper
@@ -74,7 +92,10 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
         image={image}
         crop={crop}
         cropSize={cropSize}
-        onCropChange={onCropChange}
+        onCropChange={(location) => {
+          onCropChange(location);
+          props.onChange(location);
+        }}
         aspect={aspect}
         cropShape={shape}
         showGrid={grid}
@@ -100,13 +121,6 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
           >
             －
           </button>
-          {/* <AntSlider
-            min={minZoom}
-            max={maxZoom}
-            step={ZOOM_STEP}
-            value={zoomVal}
-            onChange={setZoomVal}
-          /> */}
           <button
             onClick={() => setZoomVal(zoomVal + ZOOM_STEP)}
             disabled={zoomVal + ZOOM_STEP > maxZoom}
@@ -115,29 +129,9 @@ const EasyCrop = forwardRef<EasyCropRef, EasyCropProps>((props, ref) => {
           </button>
         </section>
       )}
-      {/* {rotate && (
-        <section className={`${PREFIX}-control ${PREFIX}-control-rotate`}>
-          <button
-            onClick={() => setRotateVal(rotateVal - ROTATE_STEP)}
-            disabled={rotateVal === MIN_ROTATE}
-          >
-            ↺
-          </button>
-          <AntSlider
-            min={MIN_ROTATE}
-            max={MAX_ROTATE}
-            step={ROTATE_STEP}
-            value={rotateVal}
-            onChange={setRotateVal}
-          />
-          <button
-            onClick={() => setRotateVal(rotateVal + ROTATE_STEP)}
-            disabled={rotateVal === MAX_ROTATE}
-          >
-            ↻
-          </button>
-        </section>
-      )} */}
+      <ImgBox zoom={zoomVal} x={crop.x} y={crop.y}>
+        <img src={image} />
+      </ImgBox>
     </>
   );
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import ImgCrop from "./ImgCrop";
 import { Upload } from "antd";
 
@@ -11,15 +11,17 @@ const getSrcFromFile = (file: any) => {
 };
 
 const Avatar = () => {
-  const [fileList, setFileList] = useState([
-    {
-      uid: "-1",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-  ]);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [file, setFile] = useState<string | ArrayBuffer>("");
 
-  const onChange = ({ fileList: newFileList }: any) => {
-    setFileList(newFileList);
+  const open = () => {
+    setVisible(true);
+  };
+
+  const close = () => {
+    setVisible(false);
   };
 
   const onPreview = async (file: any) => {
@@ -36,20 +38,31 @@ const Avatar = () => {
     }
   };
 
-  console.log({ fileList });
+  const onChange = () => {
+    if (fileRef.current === null) {
+      return;
+    }
+    if (imgRef.current === null) {
+      return;
+    }
+    const reads = new FileReader();
+    const f = fileRef.current?.files?.[0];
+    console.log({ f });
+    reads.readAsDataURL(f);
+    reads.onload = function (e) {
+      fileRef.current.value = "";
+      open();
+      imgRef.current.src = this.result;
+      this.result && setFile(this.result);
+    };
+  };
 
   return (
-    <ImgCrop shape="round">
-      <Upload
-        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-        listType="picture-card"
-        fileList={fileList}
-        onChange={onChange}
-        onPreview={onPreview}
-      >
-        {fileList.length < 3 && "+ Upload"}
-      </Upload>
-    </ImgCrop>
+    <>
+      <input ref={fileRef} onChange={onChange} type="file" accept="image/*" />
+      <img src="" ref={imgRef} width={"200"} />
+      <ImgCrop file={file} open={visible} onClose={close} shape="round" />
+    </>
   );
 };
 

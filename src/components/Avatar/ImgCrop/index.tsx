@@ -1,4 +1,11 @@
-import { forwardRef, useCallback, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type CropperRef from "react-easy-crop";
 import type { UploadProps } from "antd";
 import { version } from "antd";
@@ -23,6 +30,9 @@ export type { ImgCropProps } from "./types";
 //   compareVersions(version, '4.23.0') === -1
 //     ? { visible: true }
 //     : { open: true };
+type Handle = {
+  start: () => void;
+};
 
 const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
   const {
@@ -44,76 +54,35 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
     modalMaskTransitionName,
     modalTransitionName,
     modalClassName,
-    onModalOk,
-    onModalCancel,
+    // onModalOk,
+    // onModalCancel,
 
-    beforeCrop,
-    onUploadFail,
+    // beforeCrop,
+    // onUploadFail,
     cropperProps,
-    children,
+    // children,
   } = props;
 
-  const cb = useRef<
-    Pick<
-      ImgCropProps,
-      "onModalOk" | "onModalCancel" | "beforeCrop" | "onUploadFail"
-    >
-  >({});
-  cb.current.onModalOk = onModalOk;
-  cb.current.onModalCancel = onModalCancel;
-  cb.current.beforeCrop = beforeCrop;
-  cb.current.onUploadFail = onUploadFail;
+  // const cb = useRef<
+  //   Pick<
+  //     ImgCropProps,
+  //     "onModalOk" | "onModalCancel" | "beforeCrop" | "onUploadFail"
+  //   >
+  // >({});
+  // cb.current.onModalOk = onModalOk;
+  // cb.current.onModalCancel = onModalCancel;
+  // cb.current.beforeCrop = beforeCrop;
+  // cb.current.onUploadFail = onUploadFail;
 
   /**
    * Upload
    */
+  // const [image, setImage] = useState('https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png');
   const [image, setImage] = useState("");
   const fileRef = useRef<UploadFile>({} as UploadFile);
   const beforeUploadRef = useRef<UploadProps["beforeUpload"]>();
   const resolveRef = useRef<OnModalOk>(() => {});
   const rejectRef = useRef<(err: Error) => void>(() => {});
-
-  const uploadComponent = useMemo(() => {
-    const upload = Array.isArray(children) ? children[0] : children;
-    const { beforeUpload, accept, ...restUploadProps } = upload.props;
-    beforeUploadRef.current = beforeUpload;
-
-    return {
-      ...upload,
-      props: {
-        ...restUploadProps,
-        accept: accept || "image/*",
-        beforeUpload: (file: RcFile, fileList: RcFile[]) => {
-          return new Promise(async (resolve, reject) => {
-            if (cb.current.beforeCrop) {
-              const shouldCrop = await cb.current.beforeCrop(file, fileList);
-              if (!shouldCrop) {
-                return reject();
-              }
-            }
-
-            fileRef.current = file as UploadFile;
-            resolveRef.current = (newFile) => {
-              cb.current.onModalOk?.(newFile);
-              resolve(newFile);
-            };
-            rejectRef.current = (uploadErr) => {
-              cb.current.onUploadFail?.(uploadErr);
-              reject();
-            };
-
-            const reader = new FileReader();
-            reader.addEventListener("load", () => {
-              if (typeof reader.result === "string") {
-                setImage(reader.result);
-              }
-            });
-            reader.readAsDataURL(file as unknown as Blob);
-          });
-        },
-      },
-    };
-  }, [children]);
 
   /**
    * Crop
@@ -147,13 +116,14 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
   ]);
 
   const onClose = () => {
-    setImage("");
+    // setImage("");
     easyCropRef.current.setZoomVal(INIT_ZOOM);
-    easyCropRef.current.setRotateVal(INIT_ROTATE);
+    // easyCropRef.current.setRotateVal(INIT_ROTATE);
+    props.onClose();
   };
 
   const onCancel = useCallback(() => {
-    cb.current.onModalCancel?.();
+    // cb.current.onModalCancel?.();
     onClose();
   }, []);
 
@@ -245,35 +215,33 @@ const ImgCrop = forwardRef<CropperRef, ImgCropProps>((props, cropperRef) => {
   );
 
   return (
-    <>
-      {uploadComponent}
-      {image && (
-        <AntModal
-          open
-          wrapClassName={`${PREFIX}-modal ${modalClassName || ""}`}
-          title={"编辑"}
-          onOk={onOk}
-          onCancel={onCancel}
-          maskClosable={false}
-          destroyOnClose
-          {...modalProps}
-        >
-          <EasyCrop
-            ref={easyCropRef}
-            cropperRef={cropperRef}
-            image={image}
-            aspect={aspect}
-            shape={shape}
-            grid={grid}
-            zoom={zoom}
-            rotate={rotate}
-            minZoom={minZoom}
-            maxZoom={maxZoom}
-            cropperProps={cropperProps as EasyCropProps["cropperProps"]}
-          />
-        </AntModal>
-      )}
-    </>
+    <AntModal
+      open={props.open}
+      wrapClassName={`${PREFIX}-modal ${modalClassName || ""}`}
+      title={"编辑"}
+      onOk={onOk}
+      onCancel={onCancel}
+      maskClosable={false}
+      destroyOnClose
+      {...modalProps}
+    >
+      <EasyCrop
+        ref={easyCropRef}
+        cropperRef={cropperRef}
+        image={props.file}
+        aspect={aspect}
+        shape={shape}
+        grid={grid}
+        zoom={zoom}
+        rotate={rotate}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
+        cropperProps={cropperProps as EasyCropProps["cropperProps"]}
+        onChange={(point) => {
+          console.log({ point });
+        }}
+      />
+    </AntModal>
   );
 });
 

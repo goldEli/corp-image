@@ -3,15 +3,18 @@ import type {
   ForwardedRef,
   MutableRefObject,
   SetStateAction,
-} from 'react';
-import type { default as Cropper } from 'react-easy-crop';
-import type { CropperProps } from 'react-easy-crop';
-import type { Area } from 'react-easy-crop/types';
-import type { RcFile } from 'antd/es/upload/interface';
+} from "react";
+import type { default as Cropper } from "react-easy-crop";
+import type { CropperProps } from "react-easy-crop";
+import type { Area, Point } from "react-easy-crop/types";
+import type { RcFile } from "antd/es/upload/interface";
 
 export type ImgCropProps = {
+  file: string | ArrayBuffer;
+  open: boolean;
+  onClose(): void;
   aspect?: number;
-  shape?: 'rect' | 'round';
+  shape?: "rect" | "round";
   grid?: boolean;
   quality?: number;
   fillColor?: string;
@@ -35,7 +38,7 @@ export type ImgCropProps = {
   onUploadFail?: (err: Error) => void;
   cropperProps?: Partial<CropperProps>;
 
-  children: JSX.Element;
+  // children: JSX.Element;
 };
 
 export type EasyCropRef = {
@@ -48,18 +51,19 @@ export type EasyCropRef = {
 export type EasyCropProps = Required<
   Pick<
     ImgCropProps,
-    | 'aspect'
-    | 'shape'
-    | 'grid'
-    | 'zoom'
-    | 'rotate'
-    | 'minZoom'
-    | 'maxZoom'
-    | 'cropperProps'
+    | "aspect"
+    | "shape"
+    | "grid"
+    | "zoom"
+    | "rotate"
+    | "minZoom"
+    | "maxZoom"
+    | "cropperProps"
   >
 > & {
   cropperRef: ForwardedRef<Cropper>;
   image: string;
+  onChange(point: Point): void;
 };
 
-export type OnModalOk = NonNullable<ImgCropProps['onModalOk']>;
+export type OnModalOk = NonNullable<ImgCropProps["onModalOk"]>;
